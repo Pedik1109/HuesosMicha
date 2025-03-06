@@ -16,17 +16,28 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            user-select: none; /* Запрещаем выделение текста */
+            user-select: none;
         }
         #message {
             font-size: 48px;
             text-align: center;
             position: fixed;
             z-index: 10000;
-            animation: blink 1s infinite;
+            animation: blink 0.5s infinite;
         }
         @keyframes blink {
             50% { opacity: 0; }
+        }
+        /* Добавляем мигающий фон для эпичности */
+        body {
+            animation: bgBlink 0.2s infinite;
+        }
+        @keyframes bgBlink {
+            0% { background: #000; }
+            25% { background: #f00; }
+            50% { background: #0f0; }
+            75% { background: #00f; }
+            100% { background: #000; }
         }
     </style>
 </head>
@@ -38,35 +49,40 @@
     <div id="message">ТЫ ПОПАЛСЯ НА ТВОРОГ!</div>
 
     <script>
-        // Получаем элемент аудио
+        // Получаем аудио
         const audio = document.getElementById('annoyingSound');
         audio.volume = 1.0;
 
-        // Функция для запуска пранка
+        // Функция запуска пранка
         function startPrank() {
-            // Устанавливаем максимальную громкость и запускаем звук
+            // Звук
             audio.volume = 1.0;
             audio.play().catch(err => {
                 console.log('Автозапуск звука заблокирован:', err);
             });
 
-            // Активируем полноэкранный режим
+            // Полноэкранный режим
             document.documentElement.requestFullscreen().catch(err => {
                 console.log('Fullscreen заблокирован:', err);
             });
         }
 
-        // Запускаем сразу при загрузке
+        // Пробуем запустить сразу
         startPrank();
 
-        // Предотвращаем закрытие страницы
+        // Для iOS и других строгих браузеров: запуск после клика
+        document.body.addEventListener('click', () => {
+            startPrank();
+        }, { once: true });
+
+        // Предотвращаем закрытие
         window.addEventListener('beforeunload', (e) => {
             e.preventDefault();
-            window.open(window.location.href, '_blank'); // Открываем новую вкладку
+            window.open(window.location.href, '_blank');
             e.returnValue = '';
         });
 
-        // Следим, чтобы звук не выключался
+        // Следим за звуком
         setInterval(() => {
             if (audio.paused || audio.muted) {
                 audio.play();
@@ -80,14 +96,14 @@
             e.preventDefault();
         });
 
-        // Блокируем горячие клавиши для DevTools
+        // Блокируем DevTools
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                 e.preventDefault();
             }
         });
 
-        // Пробуем перезапускать звук при любых событиях
+        // Перезапуск при любых событиях
         window.addEventListener('load', startPrank);
         window.addEventListener('focus', startPrank);
         document.addEventListener('visibilitychange', () => {
