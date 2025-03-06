@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТВОРОГ ПРАНК</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none; /* Запрещаем выделение текста */
+        }
+        #message {
+            font-size: 48px;
+            text-align: center;
+            position: fixed;
+            z-index: 10000;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <audio id="annoyingSound" loop>
+        <source src="./tvorog.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="message">ТЫ ПОПАЛСЯ НА ТВОРОГ!</div>
+
+    <script>
+        // Получаем элементы
+        const audio = document.getElementById('annoyingSound');
+        audio.volume = 1.0;
+
+        // Функция запуска пранка
+        function startPrank() {
+            // Полноэкранный режим
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Fullscreen заблокирован:', err);
+            });
+
+            // Запуск звука
+            audio.play().catch(err => {
+                console.log('Автозапуск звука заблокирован:', err);
+            });
+        }
+
+        // Пробуем запустить сразу
+        document.addEventListener('DOMContentLoaded', () => {
+            startPrank();
+        });
+
+        // Если автозапуск не сработал, ждём клик
+        document.body.addEventListener('click', () => {
+            startPrank();
+        }, { once: true });
+
+        // Предотвращаем закрытие страницы
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            window.open(window.location.href, '_blank'); // Открываем новую вкладку
+            e.returnValue = '';
+        });
+
+        // Следим, чтобы звук не выключался
+        setInterval(() => {
+            if (audio.paused || audio.muted) {
+                audio.play();
+                audio.muted = false;
+                audio.volume = 1.0;
+            }
+        }, 100);
+
+        // Блокируем правый клик (чтобы не открывали DevTools так просто)
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // Блокируем F12, Ctrl+Shift+I и другие горячие клавиши для DevTools
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
