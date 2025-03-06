@@ -28,21 +28,20 @@
         @keyframes blink {
             50% { opacity: 0; }
         }
-        /* Добавляем мигающий фон для эпичности */
+        /* Мигающий фон */
         body {
-            animation: bgBlink 0.2s infinite;
+            animation: bgBlink 0.3s infinite;
         }
         @keyframes bgBlink {
             0% { background: #000; }
-            25% { background: #f00; }
-            50% { background: #0f0; }
-            75% { background: #00f; }
+            33% { background: #f00; }
+            66% { background: #0f0; }
             100% { background: #000; }
         }
     </style>
 </head>
 <body>
-    <audio id="annoyingSound" loop autoplay>
+    <audio id="annoyingSound" loop>
         <source src="./tvorog.mp3" type="audio/mpeg">
     </audio>
 
@@ -55,22 +54,23 @@
 
         // Функция запуска пранка
         function startPrank() {
-            // Звук
-            audio.volume = 1.0;
+            // Запускаем звук
             audio.play().catch(err => {
-                console.log('Автозапуск звука заблокирован:', err);
+                console.log('Ошибка запуска звука:', err);
             });
 
-            // Полноэкранный режим
+            // Пробуем полноэкранный режим
             document.documentElement.requestFullscreen().catch(err => {
-                console.log('Fullscreen заблокирован:', err);
+                console.log('Fullscreen не поддерживается:', err);
             });
         }
 
-        // Пробуем запустить сразу
-        startPrank();
+        // Пробуем запустить сразу (для Android или менее строгих браузеров)
+        window.addEventListener('load', () => {
+            startPrank();
+        });
 
-        // Для iOS и других строгих браузеров: запуск после клика
+        // Для iPhone и строгих браузеров: запуск после клика
         document.body.addEventListener('click', () => {
             startPrank();
         }, { once: true });
@@ -82,12 +82,12 @@
             e.returnValue = '';
         });
 
-        // Следим за звуком
+        // Следим, чтобы звук не выключался
         setInterval(() => {
             if (audio.paused || audio.muted) {
-                audio.play();
                 audio.muted = false;
                 audio.volume = 1.0;
+                audio.play();
             }
         }, 100);
 
@@ -100,15 +100,6 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                 e.preventDefault();
-            }
-        });
-
-        // Перезапуск при любых событиях
-        window.addEventListener('load', startPrank);
-        window.addEventListener('focus', startPrank);
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                audio.play();
             }
         });
     </script>
