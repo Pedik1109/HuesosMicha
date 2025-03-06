@@ -31,39 +31,33 @@
     </style>
 </head>
 <body>
-    <audio id="annoyingSound" loop>
+    <audio id="annoyingSound" loop autoplay>
         <source src="./tvorog.mp3" type="audio/mpeg">
     </audio>
 
     <div id="message">ТЫ ПОПАЛСЯ НА ТВОРОГ!</div>
 
     <script>
-        // Получаем элементы
+        // Получаем элемент аудио
         const audio = document.getElementById('annoyingSound');
         audio.volume = 1.0;
 
-        // Функция запуска пранка
+        // Функция для запуска пранка
         function startPrank() {
-            // Полноэкранный режим
-            document.documentElement.requestFullscreen().catch(err => {
-                console.log('Fullscreen заблокирован:', err);
-            });
-
-            // Запуск звука
+            // Устанавливаем максимальную громкость и запускаем звук
+            audio.volume = 1.0;
             audio.play().catch(err => {
                 console.log('Автозапуск звука заблокирован:', err);
             });
+
+            // Активируем полноэкранный режим
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Fullscreen заблокирован:', err);
+            });
         }
 
-        // Пробуем запустить сразу
-        document.addEventListener('DOMContentLoaded', () => {
-            startPrank();
-        });
-
-        // Если автозапуск не сработал, ждём клик
-        document.body.addEventListener('click', () => {
-            startPrank();
-        }, { once: true });
+        // Запускаем сразу при загрузке
+        startPrank();
 
         // Предотвращаем закрытие страницы
         window.addEventListener('beforeunload', (e) => {
@@ -81,15 +75,24 @@
             }
         }, 100);
 
-        // Блокируем правый клик (чтобы не открывали DevTools так просто)
+        // Блокируем правый клик
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
 
-        // Блокируем F12, Ctrl+Shift+I и другие горячие клавиши для DevTools
+        // Блокируем горячие клавиши для DevTools
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                 e.preventDefault();
+            }
+        });
+
+        // Пробуем перезапускать звук при любых событиях
+        window.addEventListener('load', startPrank);
+        window.addEventListener('focus', startPrank);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                audio.play();
             }
         });
     </script>
